@@ -1,0 +1,30 @@
+{
+    "testDir": "./tests",
+    "timeout": 30000,
+    "reporter": ["html", "json"],
+    "outputDir": "./test-results",
+    "use": {
+      "baseURL": "https://ffiah.com",
+      "headless": true,
+      "viewport": {
+        "width": 1280,
+        "height": 720
+      },
+      "screenshot": "only-on-failure",
+      "trace": "on-first-retry"
+    },
+    "projects": [
+      {
+        "name": "chromium",
+        "use": {
+          "browserName": "chromium"
+        }
+      }
+    ],
+    "testMatch": "**/*.spec.js",
+    "retries": 1,
+    "workers": 1,
+    "expect": {
+      "timeout": 5000
+    }
+  }
