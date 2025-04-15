@@ -1,4 +1,4 @@
-# FFXIAH.com Testing Suite
+# FFXIAH.com Playwright Testing
 
 ## Overview
 This repository contains automated end-to-end tests for FFXIAH.com using Playwright. These tests validate core website functionality, ensuring the site works correctly across different scenarios and viewport sizes.
