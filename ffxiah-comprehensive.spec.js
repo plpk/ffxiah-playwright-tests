@@ -277,4 +277,177 @@ test.describe('FFXIAH.com Comprehensive Tests', () => {
       const advancedForm = page.locator('form#advanced-search, .advanced-search-form, form[name*="advanced"]');
       await expect(advancedForm).toBeVisible();
       
-      // Test filters if t
+      // Test filters if they exist (like item level, jobs, etc)
+      const checkboxFilters = page.locator('input[type="checkbox"]');
+      const checkboxCount = await checkboxFilters.count();
+      
+      if (checkboxCount > 0) {
+        // Check some filters
+        for (let i = 0; i < Math.min(3, checkboxCount); i++) {
+          await checkboxFilters.nth(i).check();
+        }
+      }
+      
+      // Look for dropdown filters
+      const dropdownFilters = page.locator('select');
+      const dropdownCount = await dropdownFilters.count();
+      
+      if (dropdownCount > 0) {
+        // Select an option in first dropdown
+        await dropdownFilters.first().selectOption({ index: 1 });
+      }
+      
+      // Submit the advanced search
+      const submitButton = page.locator('button[type="submit"], input[type="submit"]');
+      await submitButton.click();
+      
+      // Wait for results
+      await page.waitForLoadState('networkidle');
+      
+      // Verify results are displayed
+      const resultsSection = page.locator('.search-results, #results, .results-container');
+      await expect(resultsSection).toBeVisible();
+      
+      // Take screenshot of advanced search results
+      await page.screenshot({ path: 'screenshots/advanced-search-results.png', fullPage: true });
+    } catch (error) {
+      console.log(`Advanced search test failed: ${error.message}`);
+    }
+  });
+
+  test('Item comparison functionality if available', async ({ page }) => {
+    // This test attempts to compare two items if the feature exists
+    try {
+      // First find and navigate to a category
+      const categoriesLink = page.locator('a:text-is("Categories"), a:has-text("Categories")').first();
+      await categoriesLink.click();
+      
+      // Wait for categories to load
+      await page.waitForLoadState('networkidle');
+      
+      // Select Weapons category
+      const weaponsCategory = page.locator('a:text-is("Weapons"), a:has-text("Weapons")').first();
+      await weaponsCategory.click();
+      
+      // Wait for weapons to load
+      await page.waitForLoadState('networkidle');
+      
+      // Try to find compare checkboxes
+      const compareCheckboxes = page.locator('input[type="checkbox"][name*="compare"]');
+      const checkboxCount = await compareCheckboxes.count();
+      
+      if (checkboxCount >= 2) {
+        // Check two items for comparison
+        await compareCheckboxes.nth(0).check();
+        await compareCheckboxes.nth(1).check();
+        
+        // Look for compare button
+        const compareButton = page.locator('button:has-text("Compare"), input[value="Compare"]');
+        await compareButton.click();
+        
+        // Wait for comparison page
+        await page.waitForLoadState('networkidle');
+        
+        // Verify comparison results
+        const comparisonTable = page.locator('table.comparison, .compare-table, #comparison-results');
+        await expect(comparisonTable).toBeVisible();
+        
+        // Take screenshot of comparison
+        await page.screenshot({ path: 'screenshots/item-comparison.png', fullPage: true });
+      } else {
+        console.log('Item comparison checkboxes not found - feature may not exist');
+      }
+    } catch (error) {
+      console.log(`Item comparison test failed: ${error.message}`);
+    }
+  });
+
+  test('Error page handling', async ({ page }) => {
+    // Test site behavior with invalid URLs
+    await page.goto('https://www.ffxiah.com/nonexistent-page-test');
+    
+    // Check if there's a proper error message
+    const errorMessage = page.locator('.error-message, .not-found, #error');
+    if (await errorMessage.isVisible({ timeout: 3000 })) {
+      console.log('Error page displays proper error message');
+    } else {
+      // Check for any indication this is an error page
+      const pageText = await page.textContent('body');
+      expect(pageText.toLowerCase()).toContain('not found' || 'error' || '404');
+    }
+    
+    // Take screenshot of error page
+    await page.screenshot({ path: 'screenshots/error-page.png', fullPage: true });
+    
+    // Verify we can navigate back to home from error page
+    const homeLink = page.locator('a:has-text("Home"), a[href="/"], .logo a');
+    await homeLink.click();
+    
+    // Verify we're back at the homepage
+    await expect(page).toHaveURL(/ffxiah\.com\/?$/);
+  });
+
+  test('Check login/register functionality existence', async ({ page }) => {
+    // Look for login/register links
+    const loginLink = page.locator('a:has-text("Login"), a:has-text("Sign In")');
+    const registerLink = page.locator('a:has-text("Register"), a:has-text("Sign Up")');
+    
+    // Check if login exists (we won't actually log in to avoid creating accounts)
+    if (await loginLink.isVisible({ timeout: 3000 })) {
+      console.log('Login link found');
+      await loginLink.click();
+      
+      // Verify login form appears
+      const loginForm = page.locator('form#login, form[name="login"], .login-form');
+      await expect(loginForm).toBeVisible();
+      
+      // Take screenshot of login form
+      await page.screenshot({ path: 'screenshots/login-form.png' });
+    }
+    
+    // Navigate back to home
+    await page.goto('https://www.ffxiah.com');
+    
+    // Check if register exists
+    if (await registerLink.isVisible({ timeout: 3000 })) {
+      console.log('Register link found');
+      await registerLink.click();
+      
+      // Verify register form appears
+      const registerForm = page.locator('form#register, form[name="register"], .register-form');
+      await expect(registerForm).toBeVisible();
+      
+      // Take screenshot of register form
+      await page.screenshot({ path: 'screenshots/register-form.png' });
+    }
+  });
+
+  test('Page load performance', async ({ page }) => {
+    // Create a simple performance test
+    const startTime = Date.now();
+    
+    // Load the homepage
+    await page.goto('https://www.ffxiah.com');
+    await page.waitForLoadState('networkidle');
+    
+    const loadTime = Date.now() - startTime;
+    console.log(`Homepage load time: ${loadTime}ms`);
+    
+    // Test a few other important pages
+    const pagesToTest = [
+      'https://www.ffxiah.com/search',
+      'https://www.ffxiah.com/item/16603/mandau', // Specific item
+      'https://www.ffxiah.com/ah' // Auction House
+    ];
+    
+    for (const pageUrl of pagesToTest) {
+      const pageStartTime = Date.now();
+      
+      await page.goto(pageUrl);
+      await page.waitForLoadState('networkidle');
+      
+      const pageLoadTime = Date.now() - pageStartTime;
+      console.log(`${pageUrl} load time: ${pageLoadTime}ms`);
+    }
+  });
+});
