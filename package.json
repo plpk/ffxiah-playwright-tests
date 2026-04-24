@@ -1,0 +1,15 @@
+{
+  "name": "ffxiah-playwright-tests",
+  "version": "1.0.0",
+  "description": "Playwright end-to-end test suite for ffxiah.com",
+  "scripts": {
+    "test": "npx playwright test",
+    "test:ui": "npx playwright test --ui",
+    "test:headed": "npx playwright test --headed"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.52.0"
+  },
+  "author": "Louis Kunasek",
+  "license": "MIT"
+}
