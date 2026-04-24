@@ -30,7 +30,7 @@ The comprehensive test suite (`ffxiah-comprehensive.spec.js`) validates 11 areas
 
 ## Development Approach
 
-This test suite was set up using AI coding assistants to write the test scripts while I directed the process: identifying which user paths to test, structuring the test categories, selecting appropriate test data from the game's ecosystem, and validating results against the live site. The achievement is QA methodology and testing against a real production system.
+Test scripts were scaffolded with AI coding assistants; test strategy, data selection, and validation were directed manually against the live production site.
 
 ## Test Data
 
@@ -41,6 +41,8 @@ Tests use domain-specific data drawn from the game's ecosystem:
 - **Servers:** A representative set of active FFXI game servers
 
 ## Running the Tests
+
+# Requires Node.js (v18+)
 
 ```bash
 # Install dependencies
@@ -57,15 +59,6 @@ npx playwright test ffxiah-comprehensive.spec.js --ui
 
 # Run a specific test by name
 npx playwright test ffxiah-comprehensive.spec.js -g "Homepage Navigation"
-```
-
-## Project Structure
-
-```
-ffxiah-playwright-tests/
-├── ffxiah-comprehensive.spec.js   # Full test suite
-├── playwright.config.json          # Playwright configuration
-└── README.md
 ```
 
 ## Tech Stack
